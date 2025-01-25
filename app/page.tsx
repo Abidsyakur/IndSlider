@@ -1,10 +1,10 @@
-// src/app/page.tsx
+// app/page.tsx
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-white">
       <Navbar />
       <HeroSection />
     </main>

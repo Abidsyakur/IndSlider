@@ -1,13 +1,12 @@
-// src/app/components/CardSlider.tsx
-"use client"; // Karena menggunakan useState dan framer-motion
+"use client"; // Убедитесь, что компонент выполняется на стороне клиента
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Добавьте useEffect
 import { motion, AnimatePresence } from 'framer-motion';
 import Card from './Card';
 
 interface Card {
   id: number;
-  image: string; // URL gambar
+  image: string; // URL изображения
   content: string;
 }
 
@@ -17,27 +16,52 @@ interface CardSliderProps {
 
 export default function CardSlider({ cards }: CardSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false); // Состояние для определения мобильного устройства
 
-  // Fungsi untuk menampilkan 1 card di mobile dan 3 card di desktop
-  const visibleCards = cards.slice(currentIndex, currentIndex + (window.innerWidth < 768 ? 1 : 3));
+  // Используйте useEffect для работы с window
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768); // Определяем, является ли устройство мобильным
+    };
 
-  // Fungsi untuk mengubah slide berdasarkan index
+    handleResize(); // Установите начальное значение
+    window.addEventListener('resize', handleResize); // Следите за изменением размера окна
+
+    return () => {
+      window.removeEventListener('resize', handleResize); // Очистите слушатель при размонтировании
+    };
+  }, []);
+
+  // Функция для отображения видимых карточек
+  const visibleCards = cards.slice(currentIndex, currentIndex + (isMobile ? 1 : 3));
+
+  // Функция для перехода к следующему слайду
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + (isMobile ? 1 : 3)) % cards.length);
+  };
+
+  // Функция для перехода к предыдущему слайду
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - (isMobile ? 1 : 3) + cards.length) % cards.length);
+  };
+
+  // Функция для перехода к конкретному слайду
   const goToSlide = (index: number) => {
     setCurrentIndex(index);
   };
 
   return (
     <div className="relative">
-      {/* Slider Content */}
+      {/* Слайдер */}
       <div className="flex space-x-4 overflow-hidden">
         <AnimatePresence initial={false}>
           {visibleCards.map((card) => (
             <motion.div
               key={card.id}
-              initial={{ opacity: 0, x: 50 }} // Animasi awal
-              animate={{ opacity: 1, x: 0 }} // Animasi saat muncul
-              exit={{ opacity: 0, x: -50 }} // Animasi saat menghilang
-              transition={{ duration: 0.5 }} // Durasi animasi
+              initial={{ opacity: 0, x: 50 }} // Анимация появления
+              animate={{ opacity: 1, x: 0 }} // Анимация при появлении
+              exit={{ opacity: 0, x: -50 }} // Анимация при исчезновении
+              transition={{ duration: 0.5 }} // Длительность анимации
               className="w-full md:w-1/3 flex-shrink-0"
             >
               <Card image={card.image} content={card.content} />
@@ -46,7 +70,7 @@ export default function CardSlider({ cards }: CardSliderProps) {
         </AnimatePresence>
       </div>
 
-      {/* Pagination Dots */}
+      {/* Пагинация */}
       <div className="flex justify-center mt-4 space-x-2">
         {cards.map((_, index) => (
           <button
@@ -58,6 +82,20 @@ export default function CardSlider({ cards }: CardSliderProps) {
           />
         ))}
       </div>
+
+      {/* Кнопки навигации (опционально) */}
+      <button
+        onClick={prevSlide}
+        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full"
+      >
+        &lt;
+      </button>
+      <button
+        onClick={nextSlide}
+        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full"
+      >
+        &gt;
+      </button>
     </div>
   );
 }
