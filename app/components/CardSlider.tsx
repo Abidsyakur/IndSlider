@@ -31,7 +31,7 @@ export default function CardSlider({ cards }: CardSliderProps) {
       {/* Slider Content */}
       <div className="flex space-x-4 overflow-hidden">
         <AnimatePresence initial={false}>
-          {visibleCards.map((card, index) => (
+          {visibleCards.map((card) => (
             <motion.div
               key={card.id}
               initial={{ opacity: 0, x: 50 }} // Animasi awal
